@@ -15,10 +15,10 @@
   const inviteCode = new URLSearchParams(location.search).keys().next().value || location.hash.slice(1) || null;
 
   // ---------- logo ----------
-  const LOGO_COLORS = ['#ff5a5f', '#ff9f1c', '#ffd23f', '#3ec97b', '#3fa7f5', '#7b5cff'];
-  document.querySelectorAll('.logo').forEach((el) => {
-    el.innerHTML = [...'scrawl'].map((c, i) => `<span style="color:${LOGO_COLORS[i]};--r:${(i % 2 ? 1 : -1) * (3 + i)}deg">${c}</span>`).join('');
-  });
+  const LOGO_MARK = '<span class="logo-mark"><svg viewBox="0 0 24 24"><path d="M5 17c3-1 4-9 8-9s1 7 6 6"/></svg></span><span class="logo-text">scrawl</span>';
+  document.querySelectorAll('.logo').forEach((el) => { el.innerHTML = LOGO_MARK; });
+  const ICON_SOUND_ON = '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4zM15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>';
+  const ICON_SOUND_OFF = '<svg viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4zM22 9l-6 6M16 9l6 6"/></svg>';
 
   // ---------- sound ----------
   let actx;
@@ -40,9 +40,9 @@
   };
   $('#settingsToggle').addEventListener('click', () => {
     S.sound = !S.sound; store.set('scrawl.sound', S.sound);
-    $('#settingsToggle').textContent = S.sound ? '🔊' : '🔈';
+    $('#settingsToggle').innerHTML = S.sound ? ICON_SOUND_ON : ICON_SOUND_OFF;
   });
-  $('#settingsToggle').textContent = S.sound ? '🔊' : '🔈';
+  $('#settingsToggle').innerHTML = S.sound ? ICON_SOUND_ON : ICON_SOUND_OFF;
 
   // ---------- home ----------
   $('#name').value = store.get('scrawl.name', '');
@@ -87,7 +87,7 @@
           <div class="pscore">${p.score} points</div>
         </div>
         <div class="avatar small">${Avatar.svg(p.avatar, { crown: p.id === S.hostId })}</div>
-        ${p.id === S.drawerId ? '<div class="pencil" title="Drawing">✏️</div>' : ''}
+        ${p.id === S.drawerId ? '<div class="pencil" title="Drawing"><svg viewBox="0 0 24 24"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></div>' : ''}
       </div>`).join('');
   }
   $('#players').addEventListener('click', (e) => {
@@ -266,6 +266,12 @@
   setInterval(() => {
     const left = S.deadline ? Math.max(0, Math.ceil((S.deadline - Date.now()) / 1000)) : 0;
     $('#timer').textContent = left;
+    const ring = $('#clockRing');
+    if (ring) {
+      const frac = S.deadline && S.total ? left / S.total : 0;
+      ring.style.strokeDashoffset = String(97.4 * (1 - frac));
+      ring.classList.toggle('urgent', S.state === 'drawing' && left <= 10);
+    }
     if (S.state === 'drawing' && left <= 10 && left > 0 && left !== lastSec) sfx.tick();
     lastSec = left;
   }, 250);
@@ -337,7 +343,7 @@
 
   socket.on('joined', ({ you, room }) => {
     S.me = you; S.room = room; S.players = room.players; S.hostId = room.hostId; S.drawerId = room.drawerId; S.state = room.state;
-    S.deadline = room.timeLeft ? Date.now() + room.timeLeft * 1000 : 0; S.guessed = false;
+    S.deadline = room.timeLeft ? Date.now() + room.timeLeft * 1000 : 0; S.total = room.state === 'drawing' ? room.settings.drawTime : 15; S.guessed = false;
     $('#messages').innerHTML = '';
     showScreen('game');
     if (room.isPrivate) history.replaceState(null, '', `/?${room.code}`);
@@ -374,7 +380,7 @@
   });
 
   socket.on('choosing', ({ drawerId, name, time }) => {
-    S.state = 'choosing'; S.drawerId = drawerId; S.guessed = false; S.deadline = Date.now() + time * 1000;
+    S.state = 'choosing'; S.drawerId = drawerId; S.guessed = false; S.deadline = Date.now() + time * 1000; S.total = time;
     replay([]); setHint(null);
     if (drawerId !== S.me) {
       const p = S.players.find((x) => x.id === drawerId);
@@ -390,7 +396,7 @@
     }, 1200);
   });
   socket.on('drawing', ({ drawerId, time, hint, lengths }) => {
-    S.state = 'drawing'; S.drawerId = drawerId; S.deadline = Date.now() + time * 1000;
+    S.state = 'drawing'; S.drawerId = drawerId; S.deadline = Date.now() + time * 1000; S.total = time;
     currentLengths = lengths; closeOverlay(); setHint(hint, lengths); updateUI();
   });
   socket.on('hint', (hint) => setHint(hint, currentLengths));

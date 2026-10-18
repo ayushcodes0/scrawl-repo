@@ -5,126 +5,156 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Scrawl – Draw &amp; Guess with Friends</title>
   <meta name="description" content="Scrawl is a free multiplayer drawing and guessing game. Take turns drawing a word while everyone else races to guess it." />
+  <meta name="theme-color" content="#09090f" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%238b5cf6'/%3E%3Cstop offset='1' stop-color='%23ec4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M9 22c3-1 4-9 8-9s1 7 6 6' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="glow" aria-hidden="true"></div>
+
   <!-- HOME -->
   <section id="home" class="screen active">
-    <h1 class="logo" aria-label="Scrawl"></h1>
-    <p class="credit">A game by <span>Virat</span> &amp; <span>Nandini</span></p>
-    <p class="tagline">Draw it. Guess it. Win it.</p>
-    <div class="panel home-panel">
-      <div class="row">
-        <input id="name" maxlength="20" placeholder="Enter your name" autocomplete="off" />
+    <nav class="nav">
+      <a class="logo" href="/" aria-label="Scrawl home"></a>
+      <span class="nav-pill"><i class="live-dot"></i> Multiplayer · Free</span>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="credit">A game by <span>Virat</span> &amp; <span>Nandini</span></p>
+        <h1>Draw it.<br />Guess it.<br /><em>Win it.</em></h1>
+        <p class="tagline">The real-time drawing and guessing game for you and your friends. One player draws, everyone races to guess. No sign-up needed.</p>
+        <ul class="feature-list">
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Private rooms with invite links</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Custom words and room settings</li>
+          <li><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Works on phone and desktop</li>
+        </ul>
       </div>
-      <div class="avatar-editor">
-        <div class="arrows left">
-          <button data-part="eyes" data-dir="-1" aria-label="Previous eyes">‹</button>
-          <button data-part="mouth" data-dir="-1" aria-label="Previous mouth">‹</button>
-          <button data-part="color" data-dir="-1" aria-label="Previous color">‹</button>
+
+      <div class="card home-panel">
+        <label class="field-label" for="name">Your name</label>
+        <input id="name" class="input" maxlength="20" placeholder="Enter your name" autocomplete="off" />
+        <span class="field-label">Your avatar</span>
+        <div class="avatar-editor">
+          <div class="arrows left">
+            <button data-part="eyes" data-dir="-1" aria-label="Previous eyes"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+            <button data-part="mouth" data-dir="-1" aria-label="Previous mouth"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+            <button data-part="color" data-dir="-1" aria-label="Previous color"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg></button>
+          </div>
+          <div id="avatarPreview" class="avatar big"></div>
+          <div class="arrows right">
+            <button data-part="eyes" data-dir="1" aria-label="Next eyes"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button data-part="mouth" data-dir="1" aria-label="Next mouth"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+            <button data-part="color" data-dir="1" aria-label="Next color"><svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></button>
+          </div>
+          <div class="part-labels" aria-hidden="true"><span>Eyes</span><span>Mouth</span><span>Color</span></div>
+          <button id="randomize" class="dice" title="Randomize avatar" aria-label="Randomize avatar">
+            <svg viewBox="0 0 24 24"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>
+          </button>
         </div>
-        <div id="avatarPreview" class="avatar big"></div>
-        <div class="arrows right">
-          <button data-part="eyes" data-dir="1" aria-label="Next eyes">›</button>
-          <button data-part="mouth" data-dir="1" aria-label="Next mouth">›</button>
-          <button data-part="color" data-dir="1" aria-label="Next color">›</button>
-        </div>
-        <button id="randomize" class="dice" title="Randomize avatar" aria-label="Randomize avatar">🎲</button>
+        <button id="playBtn" class="btn primary big-btn">Play now</button>
+        <button id="createBtn" class="btn ghost">Create private room</button>
+        <p id="homeError" class="error" role="alert"></p>
       </div>
-      <button id="playBtn" class="btn green big-btn">Play!</button>
-      <button id="createBtn" class="btn blue">Create Private Room</button>
-      <p id="homeError" class="error" role="alert"></p>
     </div>
+
     <div class="info-cards">
-      <div class="panel card">
-        <h2>About</h2>
-        <p>Scrawl is a free online multiplayer drawing and guessing game. Each round, one player picks a word and draws it while everyone else tries to guess it in the chat. Guess quickly to earn more points. The player with the most points at the end wins!</p>
+      <div class="card info">
+        <span class="step-no">01</span>
+        <h3>Pick a word</h3>
+        <p>When it's your turn, choose one of the words and draw it before the timer runs out.</p>
       </div>
-      <div class="panel card">
-        <h2>How to play</h2>
-        <ol>
-          <li>When it's your turn, choose one of the words and draw it before time runs out.</li>
-          <li>When someone else is drawing, type your guess into the chat.</li>
-          <li>The faster you guess, the more points you get. The drawer earns points for every correct guess.</li>
-          <li>Letters are revealed over time as hints.</li>
-        </ol>
+      <div class="card info">
+        <span class="step-no">02</span>
+        <h3>Guess fast</h3>
+        <p>When someone else draws, type your guesses in the chat. Faster guesses earn more points.</p>
+      </div>
+      <div class="card info">
+        <span class="step-no">03</span>
+        <h3>Hints drop in</h3>
+        <p>Letters are revealed over time. The drawer scores for every player who gets it right.</p>
       </div>
     </div>
+    <footer class="footer">© Scrawl · Built by Virat &amp; Nandini</footer>
   </section>
 
   <!-- GAME (lobby + play) -->
   <section id="game" class="screen">
     <header class="topbar">
       <a class="logo small" href="/" aria-label="Scrawl home"></a>
-      <div class="bar panel">
-        <div class="clock"><span id="timer">0</span></div>
+      <div class="bar card">
+        <div class="clock"><svg viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15.5" class="clock-track"/><circle id="clockRing" cx="18" cy="18" r="15.5" class="clock-ring"/></svg><span id="timer">0</span></div>
         <div id="roundInfo" class="round">Waiting</div>
         <div id="wordHint" class="word-hint"></div>
-        <button id="settingsToggle" class="icon-btn" title="Sound" aria-label="Toggle sound">🔊</button>
+        <button id="settingsToggle" class="icon-btn" title="Toggle sound" aria-label="Toggle sound"></button>
       </div>
     </header>
 
     <main class="layout">
-      <aside id="players" class="panel players" aria-label="Players"></aside>
+      <aside id="players" class="card players" aria-label="Players"></aside>
 
       <div class="center">
-        <div class="board-wrap panel">
+        <div class="board-wrap">
           <canvas id="board" width="800" height="600" aria-label="Drawing board"></canvas>
 
-          <!-- overlays -->
           <div id="overlay" class="overlay hidden">
             <div id="overlayContent"></div>
           </div>
 
-          <!-- lobby settings -->
           <div id="lobby" class="lobby hidden">
-            <h2>Room settings</h2>
+            <div class="lobby-head">
+              <h2>Room settings</h2>
+              <span class="muted">Only the room owner can change these</span>
+            </div>
             <div class="settings-grid">
               <label>Players <select id="sMaxPlayers"></select></label>
               <label>Draw time <select id="sDrawTime"></select></label>
               <label>Rounds <select id="sRounds"></select></label>
-              <label>Word count <select id="sWordCount"></select></label>
+              <label>Word choices <select id="sWordCount"></select></label>
               <label>Hints <select id="sHints"></select></label>
             </div>
-            <label class="block">Custom words <span class="muted">(comma separated, min 2 characters each)</span>
-              <textarea id="sCustomWords" rows="4" maxlength="20000" placeholder="lighthouse, paper plane, giraffe…"></textarea>
+            <label class="block">Custom words <span class="muted">comma separated, at least 2 characters each</span>
+              <textarea id="sCustomWords" rows="3" maxlength="20000" placeholder="lighthouse, paper plane, giraffe…"></textarea>
             </label>
             <label class="check"><input type="checkbox" id="sCustomOnly" /> Use custom words only</label>
             <div class="lobby-actions">
-              <button id="startBtn" class="btn green big-btn">Start!</button>
               <div class="invite">
                 <input id="inviteLink" readonly aria-label="Invite link" />
-                <button id="copyBtn" class="btn blue">Copy</button>
+                <button id="copyBtn" class="btn ghost">Copy link</button>
               </div>
+              <button id="startBtn" class="btn primary big-btn">Start game</button>
             </div>
             <p id="lobbyNote" class="muted center-text"></p>
           </div>
         </div>
 
-        <div id="toolbar" class="toolbar panel hidden">
+        <div id="toolbar" class="toolbar card hidden">
           <div id="palette" class="palette"></div>
           <div class="tools">
             <div class="current-color" id="currentColor" title="Current color"></div>
             <div class="sizes" id="sizes"></div>
-            <button class="tool active" data-tool="brush" title="Brush (B)" aria-label="Brush">✏️</button>
-            <button class="tool" data-tool="fill" title="Fill (F)" aria-label="Fill">🪣</button>
-            <button class="tool" data-tool="eraser" title="Eraser (E)" aria-label="Eraser">🧽</button>
-            <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)" aria-label="Undo">↶</button>
-            <button id="clearBtn" class="tool" title="Clear" aria-label="Clear">🗑️</button>
+            <span class="divider"></span>
+            <button class="tool active" data-tool="brush" title="Brush (B)" aria-label="Brush"><svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>
+            <button class="tool" data-tool="fill" title="Fill (F)" aria-label="Fill"><svg viewBox="0 0 24 24"><path d="m19 11-8-8-8.6 8.6a2 2 0 0 0 0 2.8l5.2 5.2a2 2 0 0 0 2.8 0L19 11ZM5 2l5 5M2 13h15M22 20a2 2 0 1 1-4 0c0-1.6 2-3 2-3s2 1.4 2 3"/></svg></button>
+            <button class="tool" data-tool="eraser" title="Eraser (E)" aria-label="Eraser"><svg viewBox="0 0 24 24"><path d="m7 21-4.3-4.3a1 1 0 0 1 0-1.4l10-10a1 1 0 0 1 1.4 0l5.6 5.6a1 1 0 0 1 0 1.4L11 21M22 21H7M5 11l9 9"/></svg></button>
+            <button id="undoBtn" class="tool" title="Undo (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24"><path d="M3 7v6h6M21 17a9 9 0 0 0-15-6.7L3 13"/></svg></button>
+            <button id="clearBtn" class="tool danger" title="Clear canvas" aria-label="Clear canvas"><svg viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
           </div>
         </div>
-        <div id="rateBar" class="rate panel hidden">
-          <button data-like="1" class="btn green" aria-label="Like drawing">👍</button>
-          <button data-like="0" class="btn red" aria-label="Dislike drawing">👎</button>
+        <div id="rateBar" class="rate card hidden">
+          <span class="muted">Rate this drawing</span>
+          <button data-like="1" class="btn ghost" aria-label="Like drawing"><svg viewBox="0 0 24 24"><path d="M7 10v12M15 5.9 14 10h5.8a2 2 0 0 1 2 2.3l-1.4 8A2 2 0 0 1 18.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z"/></svg></button>
+          <button data-like="0" class="btn ghost" aria-label="Dislike drawing"><svg viewBox="0 0 24 24"><path d="M17 14V2M9 18.1 10 14H4.2a2 2 0 0 1-2-2.3l1.4-8A2 2 0 0 1 5.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.8a2 2 0 0 0-1.8 1.1L12 22a3.1 3.1 0 0 1-3-3.9Z"/></svg></button>
         </div>
       </div>
 
-      <aside class="panel chat">
+      <aside class="card chat">
+        <div class="chat-head"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat &amp; guesses</div>
         <div id="messages" class="messages" aria-live="polite"></div>
         <form id="chatForm" class="chat-form">
-          <input id="chatInput" maxlength="100" autocomplete="off" placeholder="Type your guess here..." />
+          <input id="chatInput" class="input" maxlength="100" autocomplete="off" placeholder="Type your guess here..." />
         </form>
       </aside>
     </main>
