@@ -37,6 +37,8 @@ button, input, select, textarea { font: inherit; }
 .logo span { display: inline-block; transform: rotate(var(--r)); -webkit-text-stroke: 3px #1a1440; paint-order: stroke fill; text-shadow: 0 6px 0 rgba(0, 0, 0, .25); }
 .logo.small { font-size: 40px; margin: 0; }
 .logo.small span { -webkit-text-stroke: 2px #1a1440; text-shadow: 0 3px 0 rgba(0, 0, 0, .25); }
+.credit { text-align: center; margin: 14px 0 0; color: rgba(255, 255, 255, .7); font-size: 14px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; }
+.credit span { color: #fff; font-weight: 800; }
 .tagline { text-align: center; color: #fff; opacity: .85; margin: 6px 0 18px; font-size: 18px; }
 
 /* ---------- panels & buttons ---------- */
