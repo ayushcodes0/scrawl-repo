@@ -1,0 +1,44 @@
+// Drives two real browser tabs through a game and saves screenshots to tests/shots/.
+const puppeteer = require('puppeteer-core');
+const fs = require('fs');
+const out = __dirname + '/shots'; fs.mkdirSync(out, { recursive: true });
+const URL = process.env.URL || 'http://localhost:3000';
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+(async () => {
+  const browser = await puppeteer.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', headless: true, protocolTimeout: 20000, args: ['--window-size=1400,900', '--disable-background-timer-throttling', '--disable-renderer-backgrounding', '--disable-backgrounding-occluded-windows'] });
+  const errors = [];
+  const page = async () => { const p = await browser.newPage(); const shot = p.screenshot.bind(p); p.screenshot = async (o) => { await p.bringToFront(); return shot(o); }; await p.setViewport({ width: 1400, height: 900 }); p.on('pageerror', (e) => errors.push(e.message)); return p; };
+  const A = await page();
+  await A.goto(URL); await sleep(500);
+  await A.screenshot({ path: out + '/1-home.png' });
+  await A.type('#name', 'Alice'); await A.click('#createBtn'); await sleep(600);
+  const link = await A.$eval('#inviteLink', (e) => e.value);
+  const B = await page(); await B.goto(link); await sleep(300);
+  await B.type('#name', 'Bob'); await B.click('#playBtn'); await sleep(600);
+  await A.select('#sDrawTime', '30'); await A.select('#sRounds', '1'); await sleep(200);
+  await A.screenshot({ path: out + '/2-lobby.png' });
+  await A.click('#startBtn'); await sleep(2800);
+  const drawerPage = (await A.$('.word-btn')) ? A : B; const guesser = drawerPage === A ? B : A;
+  await drawerPage.screenshot({ path: out + '/3-choose.png' });
+  await drawerPage.click('.word-btn'); await sleep(500);
+  // draw a house: square + roof + sun, then fill
+  const box = await (await drawerPage.$('#board')).boundingBox();
+  const at = (x, y) => [box.x + (x / 800) * box.width, box.y + (y / 600) * box.height];
+  const line = async (pts) => { await drawerPage.mouse.move(...at(...pts[0])); await drawerPage.mouse.down(); for (const p of pts.slice(1)) await drawerPage.mouse.move(...at(...p), { steps: 12 }); await drawerPage.mouse.up(); };
+  await line([[250, 300], [550, 300], [550, 520], [250, 520], [250, 300]]);
+  await line([[230, 300], [400, 160], [570, 300]]);
+  await drawerPage.click('.swatch[data-c="#ffe400"]');
+  await line([[680, 90], [700, 110], [680, 130], [660, 110], [680, 90]]);
+  await drawerPage.click('.tool[data-tool="fill"]'); await drawerPage.click('.swatch[data-c="#00b2ff"]');
+  await drawerPage.mouse.click(...at(400, 420)); await sleep(800);
+  await guesser.type('#chatInput', 'house'); await guesser.keyboard.press('Enter'); await sleep(300);
+  await drawerPage.screenshot({ path: out + '/4-drawer.png' });
+  await guesser.screenshot({ path: out + '/5-guesser.png' });
+  const word = await drawerPage.$eval('.hint-word', (e) => e.textContent.replace(/\d+/g, '').replace(/\s/g, ' ').trim());
+  await guesser.type('#chatInput', word); await guesser.keyboard.press('Enter'); await sleep(900);
+  await guesser.screenshot({ path: out + '/6-turnend.png' });
+  await guesser.setViewport({ width: 390, height: 844, isMobile: true }); await sleep(400);
+  await guesser.screenshot({ path: out + '/7-mobile.png', fullPage: true });
+  console.log('errors:', errors.length ? errors : 'none');
+  await browser.close();
+})().catch((e) => { console.error(e); process.exit(1); });
